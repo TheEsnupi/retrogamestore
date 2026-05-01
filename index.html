@@ -11,11 +11,11 @@
 
 <!-- TOP BAR -->
 <div class="top-bar">
-  <div class="mode-buttons">
-    <button class="mode-btn dark" onclick="setMode('dark')">Dark Mode</button>
-    <button class="mode-btn light" onclick="setMode('light')">Light Mode</button>
-  </div>
+  <button class="theme-toggle" id="theme-toggle" aria-label="Toggle light/dark mode" onclick="toggleTheme()">💡</button>
   <a href="index.html" class="store-name">RETRO GAMING STORE</a>
+  <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+    <span></span><span></span><span></span>
+  </button>
 </div>
 
 <!-- NAV -->
@@ -165,9 +165,11 @@
 </footer>
 
 <script>
-  function setMode(mode) {
-    document.body.className = mode;
-    localStorage.setItem('theme', mode);
+  function toggleTheme() {
+    const isLight = document.body.classList.contains('light');
+    const next = isLight ? 'dark' : 'light';
+    document.body.className = next;
+    localStorage.setItem('theme', next);
   }
   const saved = localStorage.getItem('theme');
   if (saved) document.body.className = saved;
@@ -196,6 +198,35 @@
   }
 
   setInterval(() => goTo((current + 1) % images.length), 3500);
+
+  // Hamburger menu
+  const hamburger = document.getElementById('hamburger');
+  const navEl = document.querySelector('nav');
+  hamburger.addEventListener('click', () => {
+    hamburger.classList.toggle('open');
+    navEl.classList.toggle('mobile-open');
+  });
+
+  // Mobile: tap nav item to expand its dropdown
+  document.querySelectorAll('.nav-item > a').forEach(link => {
+    let lastTap = 0;
+    link.addEventListener('touchend', (e) => {
+      if (window.innerWidth <= 600) {
+        const now = Date.now();
+        if (now - lastTap < 300) return; // debounce double-fire
+        lastTap = now;
+        e.preventDefault();
+        e.stopPropagation();
+        const item = link.parentElement;
+        const wasExpanded = item.classList.contains('expanded');
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('expanded'));
+        if (!wasExpanded) item.classList.add('expanded');
+      }
+    });
+    link.addEventListener('click', (e) => {
+      if (window.innerWidth <= 600) e.preventDefault();
+    });
+  });
 </script>
 </body>
 </html>
